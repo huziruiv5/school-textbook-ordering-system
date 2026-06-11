@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
+<head><title>库存管理 - 学校教材订购系统</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="page-title mb-0"><i class="bi bi-box-seam"></i> 库存查询</h4>
+        <div>
+            <a th:href="@{/inventory/inbound}" class="btn btn-outline-info btn-sm">
+                <i class="bi bi-box-arrow-in-down"></i> 入库记录
+            </a>
+            <a th:href="@{/inventory/outbound}" class="btn btn-outline-info btn-sm">
+                <i class="bi bi-box-arrow-up"></i> 出库记录
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>教材ID</th>
+                            <th>教材名称</th>
+                            <th>ISBN</th>
+                            <th>当前库存</th>
+                            <th>存放位置</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="inv : ${inventories}">
+                            <td th:text="${inv.inventory.bookId}">1</td>
+                            <td th:text="${inv.book != null ? inv.book.name : '未知'}">高等数学</td>
+                            <td><code th:text="${inv.book != null ? inv.book.isbn : '-'}">ISBN</code></td>
+                            <td>
+                                <span th:text="${inv.inventory.quantity}"
+                                      th:classappend="${inv.inventory.quantity <= 0 ? 'text-danger fw-bold' : (inv.inventory.quantity < 50 ? 'text-warning fw-bold' : '')}">0</span>
+                            </td>
+                            <td th:text="${inv.inventory.location != null ? inv.inventory.location : '-'}">A区-1架</td>
+                            <td>
+                                <span th:if="${inv.inventory.quantity <= 0}" class="badge bg-danger">缺货</span>
+                                <span th:if="${inv.inventory.quantity > 0 && inv.inventory.quantity < 50}" class="badge bg-warning text-dark">库存偏低</span>
+                                <span th:if="${inv.inventory.quantity >= 50}" class="badge bg-success">库存充足</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(inventories)}">
+                            <td colspan="6" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                                暂无库存记录
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

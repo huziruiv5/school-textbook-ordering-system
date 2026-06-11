@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
+<head><title>编辑教材 - 学校教材订购系统</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="mb-3">
+        <a th:href="@{/books}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> 返回列表
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-pencil"></i> 编辑教材</div>
+                <div class="card-body">
+                    <form th:action="@{/books/edit/{id}(id=${book.id})}" method="post" th:object="${book}">
+                        <input type="hidden" name="id" th:value="${book.id}">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">ISBN <span class="text-danger">*</span></label>
+                                <input type="text" name="isbn" class="form-control" th:value="${book.isbn}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">教材名称 <span class="text-danger">*</span></label>
+                                <input type="text" name="name" class="form-control" th:value="${book.name}" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">作者</label>
+                                <input type="text" name="author" class="form-control" th:value="${book.author}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">出版社</label>
+                                <input type="text" name="publisher" class="form-control" th:value="${book.publisher}">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">定价 (¥)</label>
+                                <input type="number" name="price" class="form-control" th:value="${book.price}" step="0.01" min="0">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">描述</label>
+                            <textarea name="description" class="form-control" rows="3" th:text="${book.description}"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-save"></i> 更新
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

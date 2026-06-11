@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
+<head><title>登记缺书 - 学校教材订购系统</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="mb-3">
+        <a th:href="@{/purchase/out-of-stock}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> 返回
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-exclamation-circle"></i> 登记缺书</div>
+                <div class="card-body">
+                    <form th:action="@{/purchase/out-of-stock/register}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">缺书教材 <span class="text-danger">*</span></label>
+                            <select name="bookId" class="form-select" required>
+                                <option value="">-- 请选择教材 --</option>
+                                <option th:each="book : ${books}"
+                                        th:value="${book.id}"
+                                        th:text="${book.name} + ' (ISBN: ' + ${book.isbn} + ')'">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">缺书数量 <span class="text-danger">*</span></label>
+                            <input type="number" name="quantity" class="form-control" placeholder="缺书数量" min="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">备注</label>
+                            <textarea name="remark" class="form-control" rows="2" placeholder="备注信息（可选）"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-save"></i> 提交缺书记录
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-box-seam"></i> 当前库存为0的教材</div>
+                <div class="card-body p-0">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>教材ID</th>
+                                <th>库存</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="inv : ${outOfStockBooks}">
+                                <td th:text="${inv.bookId}">教材</td>
+                                <td><span class="badge bg-danger">0</span></td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(outOfStockBooks)}">
+                                <td colspan="2" class="text-center text-muted py-3">暂无缺货教材</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

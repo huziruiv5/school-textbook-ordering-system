@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
+<head>
+    <title>控制台 - 学校教材订购系统</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="page-title">
+                <i class="bi bi-speedometer2"></i> 系统控制台
+            </h4>
+            <p class="text-muted">欢迎使用学校教材订购系统，<strong th:text="${user.realName}">用户</strong>！
+                <span class="badge bg-primary ms-2" th:text="${user.role}">角色</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- 快捷入口 -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <a th:href="@{/sales/orders}" class="text-decoration-none">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number" th:text="${orderCount != null ? orderCount : 0}">0</div>
+                            <div class="stat-label">购书单</div>
+                        </div>
+                        <i class="bi bi-cart stat-icon"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <a th:href="@{/purchase/purchases}" class="text-decoration-none">
+                <div class="stat-card green">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number" th:text="${pendingPurchaseCount != null ? pendingPurchaseCount : 0}">0</div>
+                            <div class="stat-label">待采购</div>
+                        </div>
+                        <i class="bi bi-truck stat-icon"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <a th:href="@{/inventory}" class="text-decoration-none">
+                <div class="stat-card blue">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number" th:text="${inStockCount != null ? inStockCount : 0}">0</div>
+                            <div class="stat-label">在库教材</div>
+                        </div>
+                        <i class="bi bi-box-seam stat-icon"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <a th:href="@{/purchase/out-of-stock}" class="text-decoration-none">
+                <div class="stat-card orange">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number" th:text="${outOfStockCount != null ? outOfStockCount : 0}">0</div>
+                            <div class="stat-label">缺书记录</div>
+                        </div>
+                        <i class="bi bi-exclamation-triangle stat-icon"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- 功能模块卡片 -->
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-cart text-primary"></i> 销售系统
+                </div>
+                <div class="card-body">
+                    <div th:if="${user.role == 'TEACHER' || user.role == 'STUDENT'}">
+                        <p class="card-text">提交购书单，查看订单状态，领取教材。</p>
+                        <div class="d-grid gap-2">
+                            <a th:href="@{/sales/orders/submit}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> 提交购书单
+                            </a>
+                            <a th:href="@{/sales/orders}" class="btn btn-outline-primary">
+                                <i class="bi bi-list"></i> 我的购书单
+                            </a>
+                        </div>
+                    </div>
+                    <div th:if="${user.role == 'DISTRIBUTOR'}">
+                        <p class="card-text">审核购书单、开发票、管理销售流程。</p>
+                        <div class="d-grid gap-2">
+                            <a th:href="@{/sales/orders}" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> 审核购书单
+                            </a>
+                            <a th:href="@{/sales/invoices}" class="btn btn-outline-primary">
+                                <i class="bi bi-file-text"></i> 发票管理
+                            </a>
+                        </div>
+                    </div>
+                    <div th:if="${user.role == 'PURCHASER'}">
+                        <p class="card-text">查看购书单和销售情况。</p>
+                        <a th:href="@{/sales/orders}" class="btn btn-primary">
+                            <i class="bi bi-list"></i> 查看所有购书单
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-truck text-success"></i> 采购系统
+                </div>
+                <div class="card-body">
+                    <div th:if="${user.role == 'DISTRIBUTOR'}">
+                        <p class="card-text">登记缺书教材，触发采购流程。</p>
+                        <div class="d-grid gap-2">
+                            <a th:href="@{/purchase/out-of-stock/register}" class="btn btn-success">
+                                <i class="bi bi-exclamation-circle"></i> 登记缺书
+                            </a>
+                            <a th:href="@{/purchase/out-of-stock}" class="btn btn-outline-success">
+                                <i class="bi bi-list"></i> 缺书记录
+                            </a>
+                        </div>
+                    </div>
+                    <div th:if="${user.role == 'PURCHASER'}">
+                        <p class="card-text">处理缺书单、创建采购单、到货入库。</p>
+                        <div class="d-grid gap-2">
+                            <a th:href="@{/purchase/purchases/create}" class="btn btn-success">
+                                <i class="bi bi-cart-plus"></i> 创建采购单
+                            </a>
+                            <a th:href="@{/purchase/purchases}" class="btn btn-outline-success">
+                                <i class="bi bi-list"></i> 采购单列表
+                            </a>
+                        </div>
+                    </div>
+                    <div th:if="${user.role == 'TEACHER' || user.role == 'STUDENT'}">
+                        <p class="card-text">采购系统由教材发行人员和采购人员管理。</p>
+                        <a th:href="@{/inventory}" class="btn btn-outline-success">
+                            <i class="bi bi-box-seam"></i> 查看库存
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-box-seam text-info"></i> 库存管理
+                </div>
+                <div class="card-body">
+                    <p class="card-text">查看教材库存情况、入库/出库记录。</p>
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/inventory}" class="btn btn-info text-white">
+                            <i class="bi bi-box"></i> 库存查询
+                        </a>
+                        <a th:href="@{/inventory/inbound}" class="btn btn-outline-info">
+                            <i class="bi bi-box-arrow-in-down"></i> 入库记录
+                        </a>
+                        <a th:href="@{/inventory/outbound}" class="btn btn-outline-info">
+                            <i class="bi bi-box-arrow-up"></i> 出库记录
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-journal-text text-warning"></i> 教材管理
+                </div>
+                <div class="card-body">
+                    <p class="card-text">管理教材基本信息（添加、编辑、查询）。</p>
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/books}" class="btn btn-warning text-white">
+                            <i class="bi bi-book"></i> 教材列表
+                        </a>
+                        <a th:href="@{/books/add}" class="btn btn-outline-warning">
+                            <i class="bi bi-plus-circle"></i> 添加教材
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

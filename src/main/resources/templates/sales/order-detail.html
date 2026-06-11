@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
+<head><title>购书单详情 - 学校教材订购系统</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="mb-3">
+        <a th:href="@{/sales/orders}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> 返回列表
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>购书单详情</span>
+                    <span th:if="${order.status == 'PENDING'}" class="badge bg-warning text-dark fs-6">待审核</span>
+                    <span th:if="${order.status == 'APPROVED'}" class="badge bg-success fs-6">已通过</span>
+                    <span th:if="${order.status == 'REJECTED'}" class="badge bg-danger fs-6">已驳回</span>
+                    <span th:if="${order.status == 'FULFILLED'}" class="badge bg-info fs-6">已完成</span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-6">
+                            <small class="text-muted d-block">购书单号</small>
+                            <strong><code th:text="${order.orderNo}">ORD-001</code></strong>
+                        </div>
+                        <div class="col-sm-6">
+                            <small class="text-muted d-block">提交日期</small>
+                            <strong th:text="${#temporals.format(order.submitDate, 'yyyy-MM-dd HH:mm')}">2024-01-01</strong>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-6">
+                            <small class="text-muted d-block">提交人</small>
+                            <strong th:text="${submitter != null ? submitter.realName + ' (' + submitter.username + ')' : order.userId}">用户</strong>
+                        </div>
+                        <div class="col-sm-6">
+                            <small class="text-muted d-block">总金额</small>
+                            <strong class="text-danger" th:text="${order.totalAmount != null ? #numbers.formatDecimal(order.totalAmount, 1, 2) : '-'}">¥0.00</strong>
+                        </div>
+                    </div>
+                    <div th:if="${order.remark != null}" class="mb-3">
+                        <small class="text-muted d-block">备注</small>
+                        <p class="mb-0" th:text="${order.remark}">备注内容</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 购书明细 -->
+            <div class="card mb-3">
+                <div class="card-header">购书明细</div>
+                <div class="card-body p-0">
+                    <table class="table table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>教材名称</th>
+                                <th>ISBN</th>
+                                <th>单价</th>
+                                <th>数量</th>
+                                <th>小计</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="item : ${items}">
+                                <td th:text="${item.bookId}">教材名称</td>
+                                <td>-</td>
+                                <td th:text="${item.price != null ? #numbers.formatDecimal(item.price, 1, 2) : '-'}">¥0.00</td>
+                                <td th:text="${item.quantity}">1</td>
+                                <td th:text="${item.subtotal != null ? #numbers.formatDecimal(item.subtotal, 1, 2) : '-'}">¥0.00</td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <th colspan="4" class="text-end">合计：</th>
+                                <th class="text-danger" th:text="${order.totalAmount != null ? #numbers.formatDecimal(order.totalAmount, 1, 2) : '-'}">¥0.00</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- 操作面板 -->
+            <div class="card mb-3">
+                <div class="card-header">操作</div>
+                <div class="card-body">
+                    <!-- 教材发行人员操作 -->
+                    <div th:if="${user.role == 'DISTRIBUTOR'}">
+                        <div th:if="${order.status == 'PENDING'}">
+                            <a th:href="@{/sales/orders/{id}/approve(id=${order.id})}" class="btn btn-success w-100 mb-2">
+                                <i class="bi bi-check-circle"></i> 审核购书单
+                            </a>
+                        </div>
+                        <div th:if="${order.status == 'APPROVED'}">
+                            <form th:action="@{/sales/orders/{id}/invoice(id=${order.id})}" method="post">
+                                <button type="submit" class="btn btn-primary w-100 mb-2">
+                                    <i class="bi bi-file-text"></i> 开发票
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- 领书操作（有发票后） -->
+                    <div th:if="${order.status == 'APPROVED' && !#lists.isEmpty(invoices)}">
+                        <form th:action="@{/sales/orders/{id}/fulfill(id=${order.id})}" method="post">
+                            <button type="submit" class="btn btn-info w-100 text-white">
+                                <i class="bi bi-box-arrow-right"></i> 领取教材
+                            </button>
+                        </form>
+                    </div>
+
+                    <div th:if="${order.status == 'REJECTED'}" class="alert alert-warning mb-0">
+                        <i class="bi bi-exclamation-triangle"></i> 该购书单已被驳回
+                    </div>
+                    <div th:if="${order.status == 'FULFILLED'}" class="alert alert-success mb-0">
+                        <i class="bi bi-check-circle"></i> 教材已领取完成
+                    </div>
+                </div>
+            </div>
+
+            <!-- 发票信息 -->
+            <div class="card">
+                <div class="card-header">发票信息</div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(invoices)}" class="text-muted text-center py-3">
+                        <i class="bi bi-file-text fs-2 d-block mb-2"></i>
+                        尚未开具发票
+                    </div>
+                    <div th:each="inv : ${invoices}" class="border-bottom pb-2 mb-2">
+                        <small class="text-muted d-block">发票号</small>
+                        <strong><code th:text="${inv.invoiceNo}">INV-001</code></strong>
+                        <div class="mt-1">
+                            <small class="text-muted d-block">金额</small>
+                            <span class="text-danger" th:text="${inv.amount != null ? #numbers.formatDecimal(inv.amount, 1, 2) : '-'}">¥0.00</span>
+                        </div>
+                        <div class="mt-1">
+                            <small class="text-muted d-block">开票日期</small>
+                            <span th:text="${#temporals.format(inv.issueDate, 'yyyy-MM-dd HH:mm')}">2024-01-01</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

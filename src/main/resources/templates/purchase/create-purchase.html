@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
+<head><title>创建采购单 - 学校教材订购系统</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="mb-3">
+        <a th:href="@{/purchase/purchases}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> 返回
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-cart-plus"></i> 创建采购单</div>
+                <div class="card-body">
+                    <form th:action="@{/purchase/purchases/create}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">教材 <span class="text-danger">*</span></label>
+                            <select name="bookId" class="form-select" required>
+                                <option value="">-- 请选择教材 --</option>
+                                <option th:each="book : ${books}"
+                                        th:value="${book.id}"
+                                        th:text="${book.name} + ' (ISBN: ' + ${book.isbn} + ')'">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">采购数量 <span class="text-danger">*</span></label>
+                            <input type="number" name="quantity" class="form-control" placeholder="采购数量" min="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">备注</label>
+                            <textarea name="remark" class="form-control" rows="2" placeholder="备注信息（可选）"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-save"></i> 创建采购单
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-exclamation-triangle"></i> 待处理的缺书记录</div>
+                <div class="card-body p-0">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>编号</th>
+                                <th>教材ID</th>
+                                <th>缺书数量</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="record : ${pendingRecords}">
+                                <td th:text="${record.id}">1</td>
+                                <td th:text="${record.bookId}">教材ID</td>
+                                <td th:text="${record.quantity}">10</td>
+                                <td>
+                                    <form th:action="@{/purchase/purchases/create/{id}(id=${record.id})}" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-success">生成采购单</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(pendingRecords)}">
+                                <td colspan="4" class="text-center text-muted py-3">目前没有待处理的缺书记录</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

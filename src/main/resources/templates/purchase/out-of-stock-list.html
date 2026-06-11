@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
+<head><title>缺书记录 - 学校教材订购系统</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="page-title mb-0"><i class="bi bi-exclamation-triangle"></i> 缺书记录</h4>
+        <div th:if="${user.role == 'DISTRIBUTOR' || user.role == 'PURCHASER'}">
+            <a th:href="@{/purchase/out-of-stock/register}" class="btn btn-warning">
+                <i class="bi bi-plus-circle"></i> 登记缺书
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>编号</th>
+                            <th>教材ID</th>
+                            <th>缺书数量</th>
+                            <th>登记日期</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="record : ${records}">
+                            <td th:text="${record.id}">1</td>
+                            <td th:text="${record.bookId}">教材ID</td>
+                            <td th:text="${record.quantity}">10</td>
+                            <td th:text="${#temporals.format(record.registerDate, 'yyyy-MM-dd HH:mm')}">2024-01-01</td>
+                            <td>
+                                <span th:if="${record.status == 'PENDING'}" class="badge bg-warning text-dark">待处理</span>
+                                <span th:if="${record.status == 'PURCHASED'}" class="badge bg-success">已采购</span>
+                            </td>
+                            <td>
+                                <span th:if="${record.status == 'PENDING' && user.role == 'PURCHASER'}">
+                                    <form th:action="@{/purchase/purchases/create/{id}(id=${record.id})}" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="bi bi-cart-plus"></i> 生成采购单
+                                        </button>
+                                    </form>
+                                </span>
+                                <span th:if="${record.status == 'PURCHASED'}" class="text-muted small">已处理</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(records)}">
+                            <td colspan="6" class="text-center text-muted py-4">
+                                <i class="bi bi-check-circle fs-3 d-block mb-2"></i>
+                                暂无缺书记录
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

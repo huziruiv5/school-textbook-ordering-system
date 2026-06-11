@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
+<head><title>发票管理 - 学校教材订购系统</title></head>
+<body>
+<div layout:fragment="content">
+    <h4 class="page-title"><i class="bi bi-file-text"></i> 发票管理</h4>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>发票号</th>
+                            <th>关联购书单</th>
+                            <th>金额</th>
+                            <th>开票日期</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="inv : ${invoices}">
+                            <td><code th:text="${inv.invoiceNo}">INV-001</code></td>
+                            <td th:text="${inv.orderId}">ORD-001</td>
+                            <td class="text-danger fw-bold" th:text="${inv.amount != null ? #numbers.formatDecimal(inv.amount, 1, 2) : '-'}">¥0.00</td>
+                            <td th:text="${#temporals.format(inv.issueDate, 'yyyy-MM-dd HH:mm')}">2024-01-01</td>
+                            <td>
+                                <a th:href="@{/sales/orders/{id}(id=${inv.orderId})}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i> 查看订单
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(invoices)}">
+                            <td colspan="5" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                                暂无发票记录
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

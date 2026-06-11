@@ -1,0 +1,45 @@
+# ===================================
+# Maven / Java
+# ===================================
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+*.war
+
+# ===================================
+# IDE
+# ===================================
+.idea/
+*.iml
+*.iws
+*.ipr
+.project
+.classpath
+.settings/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ===================================
+# OS
+# ===================================
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ===================================
+# Logs & Temp
+# ===================================
+*.log
+*.tmp
+logs/
+
+# ===================================
+# Environment / Secrets
+# ===================================
+.env
+*.env.local
+application-local.yml
+application-local.properties

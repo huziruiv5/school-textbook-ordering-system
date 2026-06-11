@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
+<head><title>购书单列表 - 学校教材订购系统</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="page-title mb-0"><i class="bi bi-cart"></i> 购书单管理</h4>
+        <div th:if="${user.role == 'TEACHER' || user.role == 'STUDENT'}">
+            <a th:href="@{/sales/orders/submit}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> 提交购书单
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>购书单号</th>
+                            <th>提交人</th>
+                            <th>总金额</th>
+                            <th>提交日期</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="order : ${orders}">
+                            <td><code th:text="${order.orderNo}">ORD-20240101000000-001</code></td>
+                            <td th:text="${order.userId}">用户ID</td>
+                            <td th:text="${order.totalAmount != null ? #numbers.formatDecimal(order.totalAmount, 1, 2) : '-'}">¥0.00</td>
+                            <td th:text="${#temporals.format(order.submitDate, 'yyyy-MM-dd HH:mm')}">2024-01-01</td>
+                            <td>
+                                <span th:if="${order.status == 'PENDING'}" class="badge bg-warning text-dark">待审核</span>
+                                <span th:if="${order.status == 'APPROVED'}" class="badge bg-success">已通过</span>
+                                <span th:if="${order.status == 'REJECTED'}" class="badge bg-danger">已驳回</span>
+                                <span th:if="${order.status == 'FULFILLED'}" class="badge bg-info">已完成</span>
+                            </td>
+                            <td>
+                                <a th:href="@{/sales/orders/{id}(id=${order.id})}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i> 详情
+                                </a>
+                                <a th:if="${order.status == 'PENDING' && user.role == 'DISTRIBUTOR'}"
+                                   th:href="@{/sales/orders/{id}/approve(id=${order.id})}"
+                                   class="btn btn-sm btn-outline-success">
+                                    <i class="bi bi-check-circle"></i> 审核
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(orders)}">
+                            <td colspan="6" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                                暂无购书单记录
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
+<head><title>提交购书单 - 学校教材订购系统</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="mb-3">
+        <a th:href="@{/sales/orders}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> 返回列表
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-plus-circle"></i> 提交购书单
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/sales/orders/submit}" method="post">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">选择教材 <span class="text-danger">*</span></label>
+                            <div id="items-container">
+                                <div class="item-row row g-2 mb-2">
+                                    <div class="col-7">
+                                        <select name="items[0].bookId" class="form-select" required>
+                                            <option value="">-- 请选择教材 --</option>
+                                            <option th:each="book : ${books}"
+                                                    th:value="${book.id}"
+                                                    th:text="${book.name} + ' (ISBN: ' + ${book.isbn} + ', ¥' + ${book.price} + ')'">
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-3">
+                                        <input type="number" name="items[0].quantity" class="form-control"
+                                               placeholder="数量" min="1" required>
+                                    </div>
+                                    <div class="col-2">
+                                        <button type="button" class="btn btn-outline-danger w-100 remove-item" disabled>
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary mt-1" id="add-item">
+                                <i class="bi bi-plus-circle"></i> 添加教材
+                            </button>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">备注</label>
+                            <textarea name="remark" class="form-control" rows="2"
+                                      placeholder="备注信息（可选）"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send"></i> 提交购书单
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-info-circle"></i> 提示
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0 small">
+                        <li class="mb-2">购书单提交后将进入待审核状态</li>
+                        <li class="mb-2">教材发行人员将审核您的购书单</li>
+                        <li class="mb-2">审核通过后可开发票并领取教材</li>
+                        <li class="mb-2">若库存不足，系统会自动触发采购流程</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let itemIndex = 1;
+        document.getElementById('add-item').addEventListener('click', function() {
+            const container = document.getElementById('items-container');
+            const firstRow = container.querySelector('.item-row');
+            const newRow = firstRow.cloneNode(true);
+
+            newRow.querySelectorAll('select, input').forEach(function(el) {
+                const name = el.getAttribute('name');
+                if (name) {
+                    el.setAttribute('name', name.replace(/\[\d+\]/, '[' + itemIndex + ']'));
+                }
+                if (el.tagName === 'SELECT') {
+                    el.selectedIndex = 0;
+                } else {
+                    el.value = '';
+                }
+            });
+
+            newRow.querySelector('.remove-item').disabled = false;
+            newRow.querySelector('.remove-item').addEventListener('click', function() {
+                newRow.remove();
+            });
+
+            container.appendChild(newRow);
+            itemIndex++;
+        });
+    </script>
+</div>
+</body>
+</html>
